@@ -33,6 +33,9 @@ echo "Apple Pie" | git hash-object --stdin -w
 # View a git object
 git cat-file <hash value> -p for pretty print
 
+# Show a files current state and information
+git ls-files <filename>
+
 ```
 
 ### Areas of git
