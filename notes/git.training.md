@@ -115,3 +115,5 @@ git merge <branchname>
 ```
 
 ### Rebasing
+
+Rebasing changes the base of the branch being rebased.
