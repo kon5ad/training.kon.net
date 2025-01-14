@@ -78,7 +78,15 @@ All other references (trees, blobs) are used to track content.
 
 #### Annotated Tags
 
-Is a label or tag. Annotated tags contain a message and points to a commit
+Is a label or tag. Annotated tags contain a message and points to a commit. 
+
+It's just a reference to a commit. Annotated are objects like a branch, normal tags just point to a commit. Tags cannot move.
+
+```bash
+git tag release1 -a -m "A message for the tag"
+# go to the tag with checkout
+git checkout release1 #Not Switch
+```
 
 ## Branches
 
@@ -161,6 +169,10 @@ Creates a simple commit but it has 2 parents.
 
 _Fast forward_ is just moving a branch to an existing commit. This happens when git has a commit that is suitable. For example when merging backwards.
 
+#### Trade Offs of Merging
+- Preserves History so you always have the full truth
+- Large project gets very messy during history
+
 ```bash
 # Merges a branch into HEAD
 git merge <branchname>
@@ -171,4 +183,33 @@ Git is informed that the conflict is resolved by the *add* command.
 
 ### Rebasing
 
-Rebasing changes the base of the branch being rebased.
+Rebasing changes the base of the branch being rebased. In fact it creates new commits that are simply applied to the base sequencialy as commits are immutable objects.
+
+#### Trade Offs of Rebasing
+- Rebase history is very simple and linear.
+- Its a refactored history so it is a kind of lie
+
+```bash
+          0<-branchB
+Main->0   0
+        0
+        0
+
+#Rebase commits from branchB on top of commits from main
+git rebase main 
+
+      0<-branchB
+      0
+Main->0
+        0
+        0
+
+#And now merge is just a fastforward of main
+git merge branchB
+
+Main->0<-branchB
+      0
+      0
+        0
+        0
+```
