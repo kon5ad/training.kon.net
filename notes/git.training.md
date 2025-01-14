@@ -41,18 +41,23 @@ git ls-files <filename>
 ### Areas of git
 
 #### Working Area
+Git does not really care about the file in the working directory. Working area is just where files are kept for looking around and changing.
 
-#### Stating Area
+#### Staging Area
 
 ### 4 types of objects
 
 #### Blob
 
-Blobs contain the actual data like files etc.
+Blobs contain the actual data content like files etc.
+
+The names of the objects are not actually stored in the object, they are in the trees pointing to them. So you can have the same blob being pointed to by multiple trees.
+
+Essentially each time a file is changed, staged and committed a new object is created. Git has a layer of optimization to store just differences of the file in the *info* and *pack* directories.
 
 #### Tree
 
-A tree is a directory stored in git, with a parent if its not the root
+A tree is the equivalent of a directory stored in git, with a parent if its not the root. Its like a navigation path to the object and version via a commit.
 
 ```bash
 # show the tree text data
@@ -64,7 +69,12 @@ git count-objects
 
 #### Commits
 
-what is it : a simple and short piece of text. Stored as hash in object database with metadata, plus the hash of a tree
+what is it : a simple and short piece of text. Stored as hash in object database with metadata, plus the hash of a tree.
+
+References between commits are used to track history.
+
+All other references (trees, blobs) are used to track content.
+
 
 #### Annotated Tags
 
@@ -72,9 +82,26 @@ Is a label or tag. Annotated tags contain a message and points to a commit
 
 ## Branches
 
-Branches are just references or pointer to a commit its in the REFS folder
+Branches are just references or pointer to a commit its in the REFS folder.
 
-Switching means move head and update working area
+At this point git does not care about the history. It just represents the project from the commit which HEAD is pointing to. The state of the repo from that commit down.
+
+Switching branches means : 
+1. move head to point to the new branch which is pointing at a commit
+2. *update working* area. This means files are replaced by the files and folders from the commit's content.
+
+```bash
+HEAD->branchA->commit2
+               commit1<-branchB
+               commit0
+#switch branches
+git switch branchB
+
+      branchA->commit2
+               commit1<-branchB<-HEAD
+               commit0
+```
+
 
 ```bash
 # List branches
@@ -85,12 +112,39 @@ git branch <branchname>
 git switch <branchname>
 # or
 git checkout <branchname>
+```
 
-# checkout a specific commit
+```bash
+# checkout a specific commit - results in detached head -- no branch
 git checkout <commit> 
 ```
 
-Detached head is a way to checkout a specific commit without moving the branch pointer. You can change stuff without any references and once going back to the branch by switching will garbage collect the changed stuff as it has no refs. To keep them just create a branch on the detached head. A ref was created.
+Detached head is a way to checkout a specific commit without moving the branch pointer. You can change stuff without any references and once going back to the branch by switching will garbage collect the changed stuff as it has no refs. 
+
+To keep them just create a branch on the detached head. A ref was created.
+
+
+```bash
+      branchA->commit2<-HEAD
+               commit1<-branchB
+               commit0
+
+#commit something
+               commit3<-HEAD
+      branchA->commit2
+               commit1<-branchB
+               commit0
+
+#Add a branch if we want to keep track of changes
+git branch branchC
+
+      branchC->commit3<-HEAD
+      branchA->commit2
+               commit1<-branchB
+               commit0
+```
+
+
 
 ### Current branch
 
@@ -101,18 +155,19 @@ Is always referenced by the HEAD reference
 - Unreachable objects are garbage collected
 
 
-
-
 ### Merging
 
-Creates a simple commit with 2 parents
+Creates a simple commit but it has 2 parents.
 
-_Fast forward_ is just moving the head to an existing commit
+_Fast forward_ is just moving a branch to an existing commit. This happens when git has a commit that is suitable. For example when merging backwards.
 
 ```bash
 # Merges a branch into HEAD
 git merge <branchname>
 ```
+
+#### Conflicts
+Git is informed that the conflict is resolved by the *add* command.
 
 ### Rebasing
 
